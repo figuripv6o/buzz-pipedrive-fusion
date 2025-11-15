@@ -1,0 +1,53 @@
+10.1 dashboard/package.json
+
+{
+  "name": "buzzflow-crm-dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "firebase": "^11.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^5.0.0"
+  }
+}
+
+10.2 dashboard/src/api.js (Firestore client)
+
+// dashboard/src/api.js
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FB_API_KEY,
+  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FB_PROJECT_ID
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+export async function fetchLeads() {
+  const snap = await getDocs(
+    collection(db, "buzzflow_crm", "leads", "all")
+  );
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function fetchDeals() {
+  const snap = await getDocs(
+    collection(db, "buzzflow_crm", "deals", "all")
+  );
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
