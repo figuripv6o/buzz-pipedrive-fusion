@@ -1,0 +1,60 @@
+
+1. Repo Identity (Public GitHub Ready)
+
+Repo name (example): buzzflow-crm-engine
+
+What it is:
+
+> A plug-and-play CRM integration engine that:
+
+Syncs Pipedrive leads/deals into Firebase
+
+Listens to webhooks in real time
+
+Connects payment events (Stripe/whatever) to pipeline stages
+
+Shows everything in a clean React dashboard
+
+Is built for automation from day one (BuzzFlow E2E)
+
+
+
+
+
+---
+
+2. High-Level BuzzFlow E2E Workflow
+
+End-to-end flow:
+
+1. Lead captured from landing page / product / form / ad.
+
+
+2. Your backend (or Stripe checkout success) hits the BuzzFlow CRM Engine API.
+
+
+3. Engine creates/updates a Lead in Pipedrive.
+
+
+4. Pipedrive sends webhook events back to the engine.
+
+
+5. Engine writes those events into Firestore under buzzflow_crm/....
+
+
+6. React dashboard reads from Firestore → shows real-time leads & deals.
+
+
+7. (Optional) Your AI/automation layer (BuzzGPT, etc.) reads Firestore + suggests actions / sends messages.
+
+
+8. You get repeatable, visible, auditable sales flow with zero spreadsheet chaos.
+
+
+
+This stack can live as its own project, nothing else required.
+
+
+---
+
+3. Project Structure (Monorepo, Standalone)
