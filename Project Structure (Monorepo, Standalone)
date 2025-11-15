@@ -1,0 +1,98 @@
+
+buzzflow-crm-engine/
+├─ README.md
+├─ LICENSE
+├─ .gitignore
+├─ .env.example
+├─ package.json
+├─ firebase.json
+├─ firestore.rules
+├─ firestore.indexes.json
+├─ .firebaserc
+├─ functions/                 # Firebase Cloud Functions (Node.js, ESM)
+│  ├─ package.json
+│  ├─ index.js
+│  ├─ config/
+│  │   └─ firebase.js
+│  ├─ pipedriveSync.js
+│  ├─ pipedriveWebhook.js
+│  └─ paymentsWebhook.js
+└─ dashboard/                 # Public admin dashboard (React)
+   ├─ package.json
+   ├─ vite.config.mjs
+   ├─ index.html
+   └─ src/
+      ├─ main.jsx
+      ├─ App.jsx
+      ├─ api.js
+      └─ components/
+         ├─ TopBar.jsx
+         ├─ Tabs.jsx
+         ├─ LeadCard.jsx
+         └─ DealCard.jsx
+
+No other Buzz repos required. This can be used by anybody, but it still drips BuzzFlow energy.
+
+
+---
+
+4. Root package.json
+
+{
+  "name": "buzzflow-crm-engine",
+  "private": true,
+  "scripts": {
+    "dev:functions": "cd functions && npm run serve",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:all": "firebase deploy"
+  },
+  "devDependencies": {}
+}
+
+
+---
+
+5. Firebase Functions Side
+
+5.1 functions/package.json
+
+{
+  "name": "buzzflow-crm-engine-functions",
+  "main": "index.js",
+  "type": "module",
+  "engines": { "node": "20" },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions,firestore",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
+
+5.2 functions/config/firebase.js
+
+import admin from "firebase-admin";
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+export const db = admin.firestore();
+
+5.3 functions/index.js
+
+import { syncPipedriveData } from "./pipedriveSync.js";
+import { pipedriveWebhook } from "./pipedriveWebhook.js";
+import { paymentsWebhook } from "./paymentsWebhook.js";
+
+export {
+  syncPipedriveData,
+  pipedriveWebhook,
+  paymentsWebhook
+};
+
