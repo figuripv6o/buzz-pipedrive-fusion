@@ -1,0 +1,14 @@
+
+buzzflow_crm/
+  deals/
+    all/           # from sync endpoint
+  leads/
+    all/           # from sync endpoint
+  deal/
+    events/
+  lead/
+    events/
+  payment_events/
+    all/
+
+You can expose read-only views to the dashboard while keeping writes on the server only.
