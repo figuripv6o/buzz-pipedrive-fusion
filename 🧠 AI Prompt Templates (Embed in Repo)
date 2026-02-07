@@ -1,0 +1,6 @@
+ai/
+└── prompts/
+    ├── lead_summary.md
+    ├── deal_health.md
+    ├── anomaly_detection.md
+    └── revenue_insights.md
