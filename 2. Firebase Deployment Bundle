@@ -1,0 +1,269 @@
+2. Firebase Deployment Bundle
+2.1 package.json (root)
+Copy code
+Json
+{
+  "name": "buzz-pipedrive-fusion",
+  "private": true,
+  "scripts": {
+    "dev:functions": "cd functions && npm run serve",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "firebase deploy --only hosting:buzzforge-crm",
+    "deploy:all": "firebase deploy",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}
+2.2 functions/package.json
+Copy code
+Json
+{
+  "name": "buzz-pipedrive-fusion-functions",
+  "main": "index.js",
+  "engines": { "node": "20" },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions,firestore",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "type": "module"
+}
+2.3 functions/config/firebase.js
+Copy code
+Js
+// functions/config/firebase.js
+import admin from "firebase-admin";
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+export const db = admin.firestore();
+2.4 functions/index.js
+Copy code
+Js
+// functions/index.js
+import { syncDeals, syncLeads } from "./pipedriveSync.js";
+import { pipedriveWebhookHandler } from "./pipedriveWebhooks.js";
+import { onBuzzTierPaymentEvent } from "./buzzTierEvents.js";
+
+export {
+  syncDeals,
+  syncLeads,
+  pipedriveWebhookHandler,
+  onBuzzTierPaymentEvent
+};
+2.5 functions/pipedriveSync.js
+Uses Pipedrive REST API for deals and leads. �
+Pipedrive Developers +1
+Copy code
+Js
+// functions/pipedriveSync.js
+import { onRequest } from "firebase-functions/v2/https";
+import { db } from "./config/firebase.js";
+import fetch from "node-fetch";
+
+const PIPEDRIVE_API_TOKEN = process.env.PIPEDRIVE_API_TOKEN;
+const PIPEDRIVE_BASE = "https://api.pipedrive.com/v1";
+
+async function pipedriveGet(path, params = {}) {
+  const url = new URL(PIPEDRIVE_BASE + path);
+  url.searchParams.set("api_token", PIPEDRIVE_API_TOKEN);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Pipedrive GET ${path} failed: ${res.status}`);
+  const json = await res.json();
+  return json.data || [];
+}
+
+export const syncDeals = onRequest(async (_req, res) => {
+  try {
+    const deals = await pipedriveGet("/deals", { limit: 500 });
+    const batch = db.batch();
+    const col = db.collection("buzzcrm").doc("deals").collection("all");
+
+    for (const d of deals) {
+      const ref = col.doc(String(d.id));
+      batch.set(ref, d, { merge: true });
+    }
+
+    await batch.commit();
+    res.json({ ok: true, count: deals.length });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+export const syncLeads = onRequest(async (_req, res) => {
+  try {
+    const leads = await pipedriveGet("/leads", { limit: 500 });
+    const batch = db.batch();
+    const col = db.collection("buzzcrm").doc("leads").collection("all");
+
+    for (const l of leads) {
+      const ref = col.doc(String(l.id));
+      batch.set(ref, l, { merge: true });
+    }
+
+    await batch.commit();
+    res.json({ ok: true, count: leads.length });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+2.6 functions/pipedriveWebhooks.js
+Pipedrive can push events via webhooks to an HTTPS endpoint. �
+Pipedrive Support +1
+In Pipedrive UI: Tools and apps → Webhooks
+Add a webhook pointing to:
+https://<your-firebase-region>-<project>.cloudfunctions.net/pipedriveWebhookHandler
+Copy code
+Js
+// functions/pipedriveWebhooks.js
+import { onRequest } from "firebase-functions/v2/https";
+import { db } from "./config/firebase.js";
+
+export const pipedriveWebhookHandler = onRequest(async (req, res) => {
+  // Pipedrive sends POST with JSON body: { current, previous, meta }
+  const { current, previous, meta } = req.body || {};
+
+  try {
+    if (!meta || !meta.object) {
+      res.status(400).json({ ok: false, error: "No meta.object" });
+      return;
+    }
+
+    const collection =
+      meta.object === "deal"
+        ? "deals"
+        : meta.object === "lead"
+        ? "leads"
+        : "other";
+
+    const docId = current?.id || previous?.id;
+    if (!docId) {
+      res.json({ ok: true, note: "No id" });
+      return;
+    }
+
+    await db
+      .collection("buzzcrm")
+      .doc(collection)
+      .collection("all")
+      .doc(String(docId))
+      .set(
+        {
+          current: current || null,
+          previous: previous || null,
+          meta: meta || null,
+          updatedAt: new Date().toISOString()
+        },
+        { merge: true }
+      );
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+2.7 functions/buzzTierEvents.js
+This is where Stripe/Cash App/BuzzStore events will pipe into Pipedrive.
+Copy code
+Js
+// functions/buzzTierEvents.js
+import { onRequest } from "firebase-functions/v2/https";
+import fetch from "node-fetch";
+
+const PIPEDRIVE_API_TOKEN = process.env.PIPEDRIVE_API_TOKEN;
+const PIPEDRIVE_BASE = "https://api.pipedrive.com/v1";
+
+// Map app → product name
+const APP_LABELS = {
+  "buzzble-matchdrop": "BuzzBLE MatchDrop",
+  "buzzniche-hunter": "BuzzNiche Hunter",
+  "buzzcreator-studio": "BuzzCreator Studio",
+  "buzzstack-builder": "BuzzStack Builder",
+  "buzzadvisor-ai": "BuzzAdvisor.AI"
+};
+
+async function createOrUpdateLead({ email, name, appId, tier, price, externalId }) {
+  const title = `[${tier}] ${APP_LABELS[appId] || appId} — ${email}`;
+
+  // Minimal “person”
+  const personRes = await fetch(`${PIPEDRIVE_BASE}/persons?api_token=${PIPEDRIVE_API_TOKEN}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: name || email, email: [{ value: email, primary: true }] })
+  });
+
+  const personJson = await personRes.json();
+  const personId = personJson.data?.id;
+
+  const leadRes = await fetch(`${PIPEDRIVE_BASE}/leads?api_token=${PIPEDRIVE_API_TOKEN}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title,
+      person_id: personId,
+      value: price,
+      expected_close_date: null,
+      custom_fields: {
+        external_subscription_id: externalId,
+        buzz_tier: tier,
+        buzz_app: APP_LABELS[appId] || appId
+      }
+    })
+  });
+
+  const leadJson = await leadRes.json();
+  return leadJson.data;
+}
+
+export const onBuzzTierPaymentEvent = onRequest(async (req, res) => {
+  try {
+    const event = req.body;
+
+    // Expect payload from BuzzStore or Stripe webhook proxy:
+    // { type, email, name, tier, appId, amount, currency, externalId }
+    if (!event || !event.email || !event.tier) {
+      res.status(400).json({ ok: false, error: "Missing event/email/tier" });
+      return;
+    }
+
+    const lead = await createOrUpdateLead({
+      email: event.email,
+      name: event.name,
+      appId: event.appId,
+      tier: event.tier,
+      price: event.amount,
+      externalId: event.externalId
+    });
+
+    res.json({ ok: true, leadId: lead?.id || null });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+Note: Pipedrive’s Leads API expects each lead to be linked to a person or organization. �
+Pipedrive Developers +1
+3. Pipedrive Pipeline + Stages (BuzzTier)
+Create a Pipeline in Pipedrive UI:
+Settings → Pipelines → Add pipeline
+Name: BuzzTier Sales Engine
+Recommended stages:
+New Lead — BuzzStore
+Qualified by BuzzGPT
+Trial / Free Tier Active
+BuzzTier Pro Activated
+Retention / Renewal
+Churn Rescue
