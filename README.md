@@ -1,3 +1,9 @@
+![BuzzFlow](https://img.shields.io/badge/BuzzFlow™-Active-blue)
+![FDF Certified](https://img.shields.io/badge/FDF-Certified™-Verified-green)
+![Standalone](https://img.shields.io/badge/Architecture-Standalone-lightgrey)
+![No Ties](https://img.shields.io/badge/Lineage-No%20Ties-black)
+![Guardian](https://img.shields.io/badge/BuzzGuardian-24×7-orange)
+
 BuzzBrand™
 Status: ONE-SHOT · FDF-CERTIFIED · STAND-ALONE · NO TIES
 BuzzBrand™ is a sovereign system stack that delivers orchestration, CRM automation, and continuous protection as a single, public-ready platform.
