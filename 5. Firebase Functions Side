@@ -1,0 +1,40 @@
+5.1 functions/package.json
+Copy code
+Json
+{
+  "name": "buzzflow-crm-engine-functions",
+  "main": "index.js",
+  "type": "module",
+  "engines": { "node": "20" },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions,firestore",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
+5.2 functions/config/firebase.js
+Copy code
+Js
+import admin from "firebase-admin";
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+export const db = admin.firestore();
+5.3 functions/index.js
+Copy code
+Js
+import { syncPipedriveData } from "./pipedriveSync.js";
+import { pipedriveWebhook } from "./pipedriveWebhook.js";
+import { paymentsWebhook } from "./paymentsWebhook.js";
+
+export {
+  syncPipedriveData,
+  pipedriveWebhook,
+  paymentsWebhook
+};
