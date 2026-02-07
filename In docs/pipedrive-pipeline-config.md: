@@ -1,0 +1,22 @@
+# BuzzTier Sales Engine – Pipedrive Config
+
+## Pipeline
+- Name: BuzzTier Sales Engine
+- Default currency: USD (adjust as needed)
+
+## Stages
+1. New Lead — BuzzStore (probability: 10%)
+2. Qualified by BuzzGPT (30%)
+3. Trial / Free Tier Active (50%)
+4. BuzzTier Pro Activated (80%)
+5. Renewal / Expansion (90%)
+6. Won / Active Subscriber (100%)
+7. Lost / Churn (0%)
+
+## Activity Types
+- buzz_call
+- buzz_sms
+- buzz_email
+- buzz_demo
+
+Configure these in: Settings → Company → Activity types.
