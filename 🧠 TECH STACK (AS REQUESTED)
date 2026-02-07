@@ -1,0 +1,29 @@
+Firebase Functions (Node 20, ESM)
+Firestore
+Pipedrive REST API + Webhooks
+React + Vite
+Optional Tailwind
+Optional AI (BuzzGPT / OpenAI)
+No hard dependency.
+No vendor lock.
+BuzzFlow stays sovereign.
+🚀 QUICKSTART (README CORE)
+Copy code
+Bash
+git clone https://github.com/figuripv6o/buzz-pipedrive-fusion.git
+cd buzz-pipedrive-fusion
+
+# Firebase
+cd firebase/functions
+npm install
+firebase deploy
+
+# Dashboard
+cd ../../dashboard
+npm install
+npm run dev
+Add env vars:
+PIPEDRIVE_API_KEY
+WEBHOOK_SECRET
+FIREBASE_PROJECT_ID
+🧱 BUZZFORGE MODULE MANIFEST
