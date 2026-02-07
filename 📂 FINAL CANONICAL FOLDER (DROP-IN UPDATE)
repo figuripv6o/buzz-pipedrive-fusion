@@ -1,0 +1,34 @@
+Buzzbrand/
+├── README.md
+├── LICENSE
+├── FDF-CERTIFIED.md
+├── buzzforge.module.json
+│
+├── buzzfire/
+│   ├── README.md
+│   ├── BuzzFire_Virtual.md
+│   └── ui/
+│       └── status-panel.md
+│
+├── buzzflow-crm-engine/
+│   ├── README.md
+│   ├── architecture.md
+│   ├── tech-stack.md
+│   └── firebase/
+│       ├── functions/
+│       │   ├── index.js
+│       │   ├── pipedrive.webhooks.js
+│       │   ├── payments.webhooks.js
+│       │   ├── guardian.monitor.js
+│       │   └── ai.logic.js
+│       └── firestore.rules
+│
+├── guardian/
+│   ├── guardian.config.json
+│   ├── guardian.rules.md
+│   └── guardian.status.md
+│
+└── docs/
+    ├── ONE-SHOT-SEAL.md
+    ├── OWNER-CERTIFICATE.md
+    └── DEPLOYMENT-NOTES.md
