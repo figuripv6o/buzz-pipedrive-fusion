@@ -1,0 +1,30 @@
+// dashboard/src/api.js
+import { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FB_API_KEY,
+  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FB_PROJECT_ID
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+export async function fetchLeads() {
+  const snap = await getDocs(
+    collection(db, "buzzflow_crm", "leads", "all")
+  );
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
+export async function fetchDeals() {
+  const snap = await getDocs(
+    collection(db, "buzzflow_crm", "deals", "all")
+  );
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
