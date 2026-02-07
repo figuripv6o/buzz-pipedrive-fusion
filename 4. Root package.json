@@ -1,0 +1,12 @@
+{
+  "name": "buzzflow-crm-engine",
+  "private": true,
+  "scripts": {
+    "dev:functions": "cd functions && npm run serve",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:all": "firebase deploy"
+  },
+  "devDependencies": {}
+}
