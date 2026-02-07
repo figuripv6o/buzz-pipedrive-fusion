@@ -1,0 +1,31 @@
+buzzflow-crm-engine/
+├─ README.md
+├─ LICENSE
+├─ .gitignore
+├─ .env.example
+├─ package.json
+├─ firebase.json
+├─ firestore.rules
+├─ firestore.indexes.json
+├─ .firebaserc
+├─ functions/                 # Firebase Cloud Functions (Node.js, ESM)
+│  ├─ package.json
+│  ├─ index.js
+│  ├─ config/
+│  │   └─ firebase.js
+│  ├─ pipedriveSync.js
+│  ├─ pipedriveWebhook.js
+│  └─ paymentsWebhook.js
+└─ dashboard/                 # Public admin dashboard (React)
+   ├─ package.json
+   ├─ vite.config.mjs
+   ├─ index.html
+   └─ src/
+      ├─ main.jsx
+      ├─ App.jsx
+      ├─ api.js
+      └─ components/
+         ├─ TopBar.jsx
+         ├─ Tabs.jsx
+         ├─ LeadCard.jsx
+         └─ DealCard.jsx Workflow
