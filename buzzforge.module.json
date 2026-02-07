@@ -1,0 +1,9 @@
+{
+  "name": "BuzzFlow CRM Engine",
+  "slug": "buzz-pipedrive-fusion",
+  "category": "CRM / Revenue",
+  "standalone": true,
+  "guardian": true,
+  "deployTargets": ["Firebase", "Web"],
+  "fdfCertified": true
+}
