@@ -1,0 +1,39 @@
+buzz-pipedrive-fusion/
+│
+├── README.md
+├── buzzforge.module.json
+├── LICENSE-FDF-PRIVATE.md
+├── FDF-CERTIFIED.md
+│
+├── guardian/
+│   ├── guardian.config.json
+│   ├── guardian.rules.md
+│   ├── guardian-heartbeat.js
+│   └── guardian-alerts.js
+│
+├── firebase/
+│   ├── functions/
+│   │   ├── package.json
+│   │   ├── index.js
+│   │   ├── pipedrive.webhooks.js
+│   │   ├── payments.webhooks.js
+│   │   ├── guardian.monitor.js
+│   │   └── ai.layer.js
+│   └── firestore.rules
+│
+├── dashboard/
+│   ├── index.html
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── api.js
+│   │   └── components/
+│   │       ├── LeadsTable.jsx
+│   │       ├── DealsPipeline.jsx
+│   │       └── GuardianStatus.jsx
+│   └── vite.config.js
+│
+└── docs/
+    ├── architecture.md
+    ├── buzzguardian.md
+    └── quickstart.md
